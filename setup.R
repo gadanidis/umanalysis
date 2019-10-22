@@ -81,5 +81,11 @@ dat <- raw %>%
         , polite      = Q7
         , casual      = Q8
         , friendly    = Q9
-    )
+    ) %>%
+    mutate(gender = fct_recode( woman = "FALSE"
+                              , woman = "female"
+                              , woman = "Female"
+                              , woman = "female/woman"
+                              , man = "male"
+                              , man = "Male" )
 
