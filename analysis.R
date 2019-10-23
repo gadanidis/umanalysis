@@ -23,7 +23,7 @@ scales <- colnames(dat %>% select(feminine:friendly)) %>% set_names
 my_hist <- function(scale) {
     ggplot(dat, aes(x = !!sym(scale) %>% as.numeric, fill = variant)) +
         geom_bar(stat = "count", width = 0.8) +
-        facet_grid(~variant) +
+        facet_grid(voice~variant) +
         geom_vline( data = aggregate( eval(parse(text = scale)) ~ variant
                                     , data = dat
                                     , mean
@@ -43,7 +43,7 @@ my_hist <- function(scale) {
 hists <- scales %>% map(my_hist)
 
 my_diff <- function(scale) {
-    dat %>% group_by(variant, !!sym(scale)) %>%
+    dat %>% group_by(variant, voice, !!sym(scale)) %>%
         summarize(n = n()) %>%
         spread(variant, n) %>%
         mutate(uh = uh - neither, um = um - neither) %>%
@@ -52,7 +52,7 @@ my_diff <- function(scale) {
         ggplot(aes(x = !!sym(scale) %>% as.numeric, y = cases, fill = variant)) +
         geom_col(width = 0.8) +
         geom_hline(yintercept = 0) +
-        facet_grid(~variant) +
+        facet_grid(voice~variant) +
         labs( y = "difference"
             , x = scale
             ) +
@@ -99,4 +99,4 @@ temp_clmm <- clmm(
 # map clmm
 scales <- colnames(ordinal_data %>% select(feminine:friendly)) %>% set_names
 clmms <- scales %>% map(~my_clmm(ordinal_data[[.]]))
-summaries <- simple_clmms %>% map(~summary(.))
+summaries <- clmms %>% map(~summary(.))
