@@ -1,12 +1,3 @@
-exp2_qual <- readRDS("exp2_qual.rds")
-
-# grounded theory
-# start with a blank slate
-# pull out keywords --- things repeated multiple times
-# categorize them
-# go through and code things that have been categorized
-
-afterbrief_exp2$Q1
 #   [1] "When someone is hesitating or is still coming up with something to say"
 #   [2] "They are trying to find the right word"
 #   [3] "thoughtfulness, unclear thinking, distracted, hesitation, knowledgeable"
@@ -133,10 +124,3 @@ afterbrief_exp2$Q1
 # [124] "They are hesitant or thinking "
 # [125] "That they are trying to express something that is not fully thought through, or they are scared"
 # [126] "Either very comfortable or very nervous in the context of the situation"
-
-afterbrief_exp2$Q2
-
-exp2_qual %>%
-    select(Q0, voice, condition, stim, variant) %>%
-    filter(grepl("um|uh", Q0)) %>%
-    .$Q0
