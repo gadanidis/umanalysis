@@ -149,3 +149,19 @@ scales %>% walk(~ggsave(
 
 
 combined <- map2(exp1_liks, exp2_liks, ~ plot_grid(.x, .y, labels = c('(a) E1', '(b) E2'), nrow = 2))
+
+exp1_dat %>%
+    gather("scale", "rating", feminine, masculine, intelligent, hesitant, polite) %>%
+    group_by(scale, variant, subject_id) %>%
+    summarize(mean_rating = mean(rating)) %>%
+    ggplot(aes(x = variant, y = mean_rating)) +
+    geom_boxplot() +
+    facet_wrap(~scale)
+
+exp2_dat %>%
+    gather("scale", "rating", feminine, masculine, intelligent, hesitant, polite) %>%
+    group_by(scale, voice, variant, subject_id) %>%
+    summarize(mean_rating = mean(rating)) %>%
+    ggplot(aes(x = variant, y = mean_rating, fill = voice)) +
+    geom_boxplot() +
+    facet_wrap(~scale)

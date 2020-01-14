@@ -97,7 +97,8 @@ exp2_dat <- exp2_raw %>%
                                          , woman = "Female"
                                          , woman = "female/woman"
                                          , man = "male"
-                                         , man = "Male" )
+                                         , man = "Male"
+                                         , nonbinary = "Non-binary")
     )
 
 exp2_qual <- exp2_raw %>%

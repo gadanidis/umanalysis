@@ -1,4 +1,5 @@
 # ordinal regression models with random effects
+library(tidyverse)
 library(ordinal)
 library(xtable)
 
@@ -14,8 +15,7 @@ contr.simp <- function(predictor){
 my_clmm_1 <- function(depvar) {
     clmm(
         formula = depvar ~ variant +
-            (1|subject_id) + (1|stim),
-        contrasts = list(variant = contr.simp(exp2_reg$variant)),
+            (1+variant|subject_id) + (1|stim),
         data = exp1_reg
     )
 }
@@ -24,15 +24,17 @@ my_clmm_1 <- function(depvar) {
 my_clmm_2 <- function(depvar) {
     clmm(
         formula = depvar ~ variant * voice +
-            (1|subject_id) + (1|stim),
-        contrasts = list(variant = contr.simp(exp2_reg$variant)),
+            (1+variant+voice|subject_id) + (1|stim),
+        contrasts = list(voice = contr.simp(exp2_reg$voice)),
         data = exp2_reg
     )
 }
 
 # map clmm
-scales <- colnames(exp1_reg %>% select(feminine:friendly)) %>% set_names
+scales <- colnames(exp1_reg %>% select(feminine:friendly, -queer)) %>% set_names
 clmms_exp1 <- scales %>% map(~my_clmm_1(exp1_reg[[.]]))
+# separate out queer model and run without slope (doesn't converge w/ slope)
+clmms_exp1$queer <- clmm(queer ~ variant + (1|subject_id) + (1|stim), data = exp1_reg)
 summaries_exp1 <- clmms_exp1 %>% map(summary)
 tidied_exp1 <- clmms_exp1 %>%
     map(~tidy(., conf.int = TRUE) %>%
@@ -44,8 +46,10 @@ tidied_exp1 <- clmms_exp1 %>%
         )
     )
 
-scales <- colnames(exp2_reg %>% select(feminine:friendly)) %>% set_names
+scales <- colnames(exp2_reg %>% select(feminine:friendly, -young)) %>% set_names
 clmms_exp2 <- scales %>% map(~my_clmm_2(exp2_reg[[.]]))
+# separate out young model and run without voice slope (doesn't converge w/ slope)
+clmms_exp2$young <- clmm(young ~ variant * voice + (1+variant|subject_id) + (1|stim), data = exp2_reg)
 summaries_exp2 <- clmms_exp2 %>% map(summary)
 tidied_exp2 <- clmms_exp2 %>%
     map(~tidy(., conf.int = TRUE) %>%
@@ -64,8 +68,12 @@ tidied_exp2 <- clmms_exp2 %>%
     )
 
 latexify <- function(scale) {
-    xtbl1 = xtable(tidied_exp1[[scale]], caption = paste0("E1 model for the `", scale, "' scale."))
-    xtbl2 = xtable(tidied_exp2[[scale]], caption = paste0("E2 model for the `", scale, "' scale."))
+    xtbl1 = xtable(tidied_exp1[[scale]], 
+                   caption = paste0("E1 model for the `", scale, "' scale."),
+                   label = paste0("t:",scale,"1"))
+    xtbl2 = xtable(tidied_exp2[[scale]],
+                   caption = paste0("E2 model for the `", scale, "' scale."),
+                   label = paste0("t:",scale,"2"))
     print(xtbl1, booktabs = TRUE, include.rownames = FALSE)
     print(xtbl2, booktabs = TRUE, include.rownames = FALSE)
 }
